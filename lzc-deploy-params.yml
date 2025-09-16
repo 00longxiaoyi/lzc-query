@@ -1,0 +1,12 @@
+params:
+  - id: token
+    type: string
+    name: "token"
+    description: "登陆后台之后获取到的token值"
+
+locales:
+  zh:
+    token:
+      name: "用于获取数据的token"
+      description: "登陆后台之后,通过F12,网络面板中选择任意请求，cookie面板中userToken中后面的部分（不需引号，引号中间的值即可）"
+
