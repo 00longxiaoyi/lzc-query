@@ -1,0 +1,16 @@
+# 隐藏lpk文件
+*.lpk
+
+# 隐藏打包后的内容
+ui/dist/
+
+# 隐藏content的内容
+content/
+
+# 隐藏后端配置文件
+backend/pics/
+backend/config
+
+
+
+
