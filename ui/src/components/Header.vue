@@ -5,17 +5,17 @@ const emit = defineEmits(["update"])
 const activeBut = ref(0); // 0 = none, 1 = 文章, 2 = 应用
 
 const subClickHandler = (type, index) => {
-  emit("update", {type, index})
+  emit("update", { type, index })
 }
 
 const prpos = defineProps({
-  isLoadingData: Boolean
+  isLoadingData: Boolean,
+  isDownloadingPic: Boolean
 })
 
-
 watchEffect(() => {
-  
-console.log(prpos)
+  console.log(prpos)
+  console.log(prpos.isDownloadingPic)
 });
 
 </script>
@@ -27,37 +27,35 @@ console.log(prpos)
     </div>
 
     <div class="main_but_container">
-      <div class="main_but">
-        <button 
-          class="main_but_item" 
-          :disabled=isLoadingData
-          :class="{ active: activeBut === 1 }" 
-          @click="activeBut = activeBut === 1 ? 0 : 1">
-          文章数据
-        </button>
-        <button 
-          class="main_but_item"
-          :disabled=isLoadingData
-          :class="{ active: activeBut === 2 }" 
-          @click="activeBut = activeBut === 2 ? 0 : 2">
-          应用数据
-        </button>
+
+      <div class="main_but_container_left">
+        <div class="main_but">
+          <button class="main_but_item" :disabled=isLoadingData :class="{ active: activeBut === 2 }"
+            @click="activeBut = 2">
+            应用数据
+          </button>
+          <button class="main_but_item" :disabled=isLoadingData :class="{ active: activeBut === 1 }"
+            @click="activeBut = 1">
+            文章数据
+          </button>
+        </div>
       </div>
 
-      <!-- 子按钮 -->
-      <transition name="fade-slide">
-        <div class="subcategory" v-if="activeBut === 1">
-          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('article', 1)">获取每日待审核的文章</button>
-          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('article', 2)">获取每日已审核的文章</button>
-        </div>
-      </transition>
 
-      <transition name="fade-slide">
-        <div class="subcategory" v-if="activeBut === 2">
-          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('software', 1)">获取每日待审核的应用</button>
-          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('software', 2)">获取每日已审核的应用</button>
+      <div class="main_but_container_right">
+        <!-- 子按钮 -->
+        <div class="subcategory" v-if="activeBut === 1">
+          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('article', 1)">获取待审核的文章</button>
+          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('article', 2)">获取已审核的文章</button>
         </div>
-      </transition>
+
+        <div class="subcategory" v-if="activeBut === 2">
+          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('software', 1)">获取待审核的应用</button>
+          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('software', 2)">获取已审核的应用</button>
+          <button :disabled=isDownloadingPic class="sub_but_item"
+            @click="subClickHandler('software', 3)">获取图片数据</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -67,6 +65,7 @@ console.log(prpos)
   display: flex;
   flex-direction: column;
   gap: 12px;
+  font-smooth: 14px;
 }
 
 .title h1 {
@@ -76,13 +75,23 @@ console.log(prpos)
 
 /* 主按钮容器 */
 .main_but_container {
-  position: relative; /* 子按钮相对它定位 */
+  position: relative;
+  display: flex;
+  /* 子按钮相对它定位 */
+}
+
+.main_but_container_left {
+  display: flex;
+  flex-direction: column;
+  padding-right: 30px;
+  border-right: 3px solid #4a90e2;
 }
 
 /* 主按钮 */
 .main_but {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 20px;
   z-index: 1;
 }
 
@@ -92,7 +101,6 @@ console.log(prpos)
   border: none;
   border-radius: 6px;
   padding: 10px 20px;
-  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.25s ease;
 }
@@ -106,11 +114,14 @@ console.log(prpos)
   background-color: #3570b3;
 }
 
+.main_but_container_right {
+  font-size: 12px;
+  padding-left: 30px;
+}
+
 /* 子按钮 */
 .subcategory {
-  position: absolute;
-  top: 100%;  /* 紧贴主按钮下方 */
-  left: 0;
+  /* 紧贴主按钮下方 */
   display: flex;
   gap: 8px;
   background: #fff;
@@ -120,14 +131,13 @@ console.log(prpos)
 }
 
 .sub_but_item {
+  font-size: 12px;
   background-color: #ffffff;
   color: #4a90e2;
   border: 2px solid #4a90e2;
   border-radius: 6px;
   padding: 8px 12px;
-  font-size: 14px;
   cursor: pointer;
-  transition: all 0.25s ease;
 }
 
 .sub_but_item:hover {
@@ -140,19 +150,12 @@ console.log(prpos)
   color: #3570b3;
 }
 
-/* 动画 */
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-.fade-slide-enter-to,
-.fade-slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.3s ease;
+.sub_but_item:disabled {
+  background-color: #ccc;
+  /* 灰色背景 */
+  cursor: not-allowed;
+  /* 鼠标样式显示不可用 */
+  opacity: 0.6;
+  /* 让禁用状态看起来更明显 */
 }
 </style>
