@@ -11,6 +11,7 @@ GET_URL = "https://playground.api.lazycat.cloud/cms/review?page=0&size=100&sort=
 
 
 def GetArticlePengdingData():
+    """ 获取代审核文章数据 """
     token = getToken()
 
     HEADERS = {

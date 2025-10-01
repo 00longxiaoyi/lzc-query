@@ -1,6 +1,3 @@
-
-
-
 import requests
 
 from struc.responseStruc import ResponseStruc
@@ -11,7 +8,7 @@ from utils.Token import getToken
 
 
 def GetArticleData(startDay, endDay):
-
+    """ 获取已审核的文章数据 """
     token = getToken()
     HEADERS = {
         "Cookie": f"userToken={token}"
