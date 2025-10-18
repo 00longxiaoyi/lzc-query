@@ -1,8 +1,5 @@
 <template>
-  <button
-    class="copy-btn"
-    @click="copyText"
-  >
+  <button class="copy-btn" @click="copyText">
     <span v-if="!copied">📋 复制</span>
     <span v-else>✅ 已复制</span>
   </button>
@@ -39,16 +36,11 @@ const copyText = async () => {
 
 <style scoped>
 .copy-btn {
-  position: sticky;
-  top: 8px;
-  right: 8px;
   padding: 6px 12px;
   font-size: 14px;
-  float: right;
   color: #fff;
-  background-color: #4f46e5; /* 深蓝 */
+  background-color: var(--btn-primary-bg);
   border: none;
-  border-radius: 6px;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: background-color 0.2s ease;
@@ -57,6 +49,6 @@ const copyText = async () => {
 }
 
 .copy-btn:hover {
-  background-color: #4338ca; /* hover 更深蓝 */
+  background-color: var(--btn-primary-hover);
 }
 </style>

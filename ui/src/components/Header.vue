@@ -1,59 +1,131 @@
 <script setup>
+import CLM from "./CollapsibleMenu.vue"
 import { ref, defineEmits, defineProps, watchEffect } from "vue";
 
+import { setMainMenu, setSubMenu } from "../utils/store";
+
 const emit = defineEmits(["update"])
-const activeBut = ref(0); // 0 = none, 1 = 文章, 2 = 应用
-
-const subClickHandler = (type, index) => {
-  emit("update", { type, index })
-}
-
 const prpos = defineProps({
   isLoadingData: Boolean,
   isDownloadingPic: Boolean
 })
 
-watchEffect(() => {
-  console.log(prpos)
-  console.log(prpos.isDownloadingPic)
-});
+
+const MenuItemsData = [
+  {
+    "main": {
+      "label": "应用审核",
+      "value": "soft"
+    },
+    "sub": [
+      {
+        "label": "待审核",
+        "value": "noReview",
+        "type": "table"
+      }, {
+        "label": "已审核",
+        "value": "review",
+        "type": "content"
+      }
+    ]
+  },
+  {
+    "main": {
+      "label": "文章审核",
+      "value": "article"
+    },
+    "sub": [
+      {
+        "label": "代审核",
+        "value": "noReview",
+        "type": "table"
+      }, {
+        "label": "已审核",
+        "value": "review",
+        "type": "content"
+      }
+    ]
+  }, {
+    "main": {
+      "label": "其他内容",
+      "value": "other"
+    }, "sub": [
+      {
+        "label": "金额计算",
+        "value": "moeny",
+        "type": "table"
+      },
+      {
+        "label": "汇总表格",
+        "value": "Summary",
+        "type": "content"
+      },
+      {
+        "label": "下载图片",
+        "value": "DownloadPic",
+        "type": "download",
+      }
+    ]
+  }
+
+]
+
+const changeMenu = (MenuName, subName) => {
+  // emit("update", { MenuName, subName })
+  setMainMenu(MenuName)
+  setSubMenu(subName)
+}
 
 </script>
 
 <template>
   <div class="category-container">
-    <div class="title">
-      <h1>每日审核数据获取</h1>
+
+    <div class="category-container-menu">
+      <CLM :MenuItemData :changeMenu="changeMenu" v-for="MenuItemData in MenuItemsData"></CLM>
     </div>
 
-    <div class="main_but_container">
-
-      <div class="main_but_container_left">
-        <div class="main_but">
-          <button class="main_but_item" :disabled=isLoadingData :class="{ active: activeBut === 2 }"
-            @click="activeBut = 2">
-            应用数据
-          </button>
-          <button class="main_but_item" :disabled=isLoadingData :class="{ active: activeBut === 1 }"
-            @click="activeBut = 1">
-            文章数据
-          </button>
-        </div>
-      </div>
-
-
-      <div class="main_but_container_right">
-        <!-- 子按钮 -->
-        <div class="subcategory" v-if="activeBut === 1">
-          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('article', 1)">获取待审核的文章</button>
-          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('article', 2)">获取已审核的文章</button>
+    <div v-if="false">
+      <div class="main_but_container">
+        <div class="main_but_container_left">
+          <div class="main_but">
+            <button class="main_but_item" :disabled=isLoadingData :class="{ active: activeBut === 2 }"
+              @click="activeBut = 2">
+              应用数据
+            </button>
+            <button class="main_but_item" :disabled=isLoadingData :class="{ active: activeBut === 1 }"
+              @click="activeBut = 1">
+              文章数据
+            </button>
+            <button class="main_but_item" :disabled=isLoadingData :class="{ active: activeBut === 1 }"
+              @click="activeBut = 3">
+              汇总计算
+            </button>
+          </div>
         </div>
 
-        <div class="subcategory" v-if="activeBut === 2">
-          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('software', 1)">获取待审核的应用</button>
-          <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('software', 2)">获取已审核的应用</button>
-          <button :disabled=isDownloadingPic class="sub_but_item"
-            @click="subClickHandler('software', 3)">获取图片数据</button>
+        <div class="main_but_container_right">
+          <!-- 子按钮 -->
+          <div class="subcategory" v-if="activeBut === 1">
+            <button :disabled=isLoadingData class="sub_but_item"
+              @click="subClickHandler('article', 1)">获取待审核的文章</button>
+            <button :disabled=isLoadingData class="sub_but_item"
+              @click="subClickHandler('article', 2)">获取已审核的文章</button>
+          </div>
+
+          <div class="subcategory" v-if="activeBut === 2">
+            <button :disabled=isLoadingData class="sub_but_item"
+              @click="subClickHandler('software', 1)">获取待审核的应用</button>
+            <button :disabled=isLoadingData class="sub_but_item"
+              @click="subClickHandler('software', 2)">获取已审核的应用</button>
+            <button :disabled=isDownloadingPic class="sub_but_item"
+              @click="subClickHandler('software', 3)">获取图片数据</button>
+          </div>
+
+          <div class="subcategory" v-if="activeBut === 3">
+            <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('other', 1)">金额计算器</button>
+            <button :disabled=isLoadingData class="sub_but_item" @click="subClickHandler('other', 2)">汇总数据</button>
+          </div>
         </div>
       </div>
     </div>
@@ -68,9 +140,15 @@ watchEffect(() => {
   font-smooth: 14px;
 }
 
-.title h1 {
-  font-size: 30px;
-  color: #333;
+.category-container-menu {
+  display: flex;
+  flex-direction: column;
+  width: 180px;
+}
+
+/* 这里使用的是子组件的名称 */
+.category-container-menu>.menu-main:not(:first-child) {
+  margin-top: 10px;
 }
 
 /* 主按钮容器 */

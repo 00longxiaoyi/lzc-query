@@ -6,11 +6,7 @@
     </div>
 
     <!-- 遮罩 -->
-    <div
-      v-if="visible"
-      class="settings-overlay"
-      @click="closePanel"
-    ></div>
+    <div v-if="visible" class="settings-overlay" @click="closePanel"></div>
 
     <!-- 抽屉 -->
     <div class="settings-drawer" :class="{ visible }">
@@ -26,24 +22,11 @@
         <div class="row">
           <div class="label">设置 Token</div>
           <div class="input-wrap">
-            <input
-              class="input"
-              v-model="newToken"
-              placeholder="请输入新的 Token"
-            />
+            <input class="input" v-model="newToken" placeholder="请输入新的 Token" />
             <button :disable="enableSub" class="icon-btn" @click="confirmToken">
               <!-- ✅ 图标 -->
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 6L9 17l-5-5" />
               </svg>
             </button>
@@ -70,11 +53,11 @@ const closePanel = () => (visible.value = false)
 const togglePanel = () => (visible.value = !visible.value)
 
 
-const loadToken = async() => {
+const loadToken = async () => {
   const { data, error, loading, run } = useRequest("/get_token")
 
   if (error.value) {
-    pushMessage("token 获取失败", "error") 
+    pushMessage("token 获取失败", "error")
   }
 
   await run()
@@ -85,13 +68,18 @@ const loadToken = async() => {
   }
 }
 
-const confirmToken = async() => {
-  const { data, error, loading, run } = useRequest("/set_token", {method: "POST"})
-  
+const confirmToken = async () => {
+  if (newToken.value == "") {
+    pushMessage("token 不能为空", "error")
+    return
+  }
+
+  const { data, error, loading, run } = useRequest("/set_token", { method: "POST" })
+
   enableSub = loading
-  
-  await run({"token": newToken.value})
-  
+
+  await run({ "token": newToken.value })
+
   if (error.value) {
     pushMessage("token 设置失败", "error")
   }
@@ -109,7 +97,7 @@ onMounted(loadToken)
 .settings-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--overlay-bg);
   z-index: 9998;
 }
 
@@ -128,9 +116,11 @@ onMounted(loadToken)
   transform: translateX(100%);
   transition: transform 0.3s ease;
 }
+
 .settings-drawer.visible {
   transform: translateX(0);
 }
+
 .settings-header {
   height: 56px;
   padding: 0 16px;
@@ -141,6 +131,7 @@ onMounted(loadToken)
   font-size: 16px;
   font-weight: 600;
 }
+
 .settings-close {
   border: none;
   background: transparent;
@@ -148,19 +139,23 @@ onMounted(loadToken)
   font-size: 20px;
   line-height: 1;
 }
+
 .settings-body {
   padding: 16px;
   overflow: auto;
   flex: 1;
 }
+
 .row {
   margin-bottom: 16px;
 }
+
 .label {
   font-size: 12px;
   color: #666;
   margin-bottom: 6px;
 }
+
 .token-box {
   background: #f7f7f7;
   border: 1px solid #e5e5e5;
@@ -168,11 +163,13 @@ onMounted(loadToken)
   padding: 5px;
   word-break: break-all;
 }
+
 .input-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .input {
   flex: 1;
   height: 36px;
@@ -181,16 +178,18 @@ onMounted(loadToken)
   padding: 0 10px;
   outline: none;
 }
+
 .input:focus {
   border-color: #7c3aed;
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
 }
+
 .icon-btn {
   width: 36px;
   height: 36px;
   border-radius: 6px;
   border: 1px solid #7c3aed;
-  background: #6aa0e8;
+  background: var(--btn-primary-bg);
   color: #fff;
   cursor: pointer;
   display: inline-flex;
@@ -198,26 +197,31 @@ onMounted(loadToken)
   justify-content: center;
   transition: transform 0.08s ease, opacity 0.2s ease;
 }
+
 .icon-btn:hover {
-  opacity: 0.95;
+  background-color: var(--btn-primary-hover);
 }
+
 .icon-btn:active {
   transform: scale(0.98);
 }
+
 .settings-handle {
   position: fixed;
   right: 0;
   transform: translateY(-50%);
   z-index: 9997;
-  background: #6aa0e8;
+  background: var(--btn-primary-bg);
   color: #fff;
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
-  padding: 10px 12px;
+  padding: 15px 12px;
   cursor: pointer;
   box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.2);
   writing-mode: vertical-rl;
   text-orientation: mixed;
   user-select: none;
+}
+
+.settings-handle:hover {
+  background: var(--btn-primary-hover);
 }
 </style>
