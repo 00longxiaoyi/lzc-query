@@ -1,9 +1,10 @@
 import os
 import asyncio
+import re
 import aiohttp
 import zipfile
 from typing import List
-from fastapi import WebSocket
+from fastapi import WebSocket, websockets
 
 from struc.responseStruc import ResponseStruc
 from struc.software import TempPicInfoStruc
@@ -32,7 +33,9 @@ async def download_pic(
     """
 
     intact_url = base_url + pic.url
-    filename = f"{folder_path}/{pic.name}.png"
+    # TODO:修复图片路径报错的问题
+    pattern = r'[\\/:*?"<>|]'
+    filename = f'{folder_path}/{re.sub(pattern, "_", pic.name)}.png'
     for i in range(retries):
         try:
             async with session.get(intact_url, timeout=aiohttp.ClientTimeout(retries * timeout)) as response:
@@ -108,7 +111,7 @@ async def createZipfile(dirname: str, zipname: str):
                     zipf.write(filePath, arcname)
 
     except Exception as e:
-        raise e
+       print(str(e)) 
 
 async def GetALlPicZip(dirname: str):
     """ 获取所有照片的接口 """  
