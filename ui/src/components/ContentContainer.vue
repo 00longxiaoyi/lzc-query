@@ -1,10 +1,15 @@
 <script setup>
 import TBC from "./TableContent.vue"
+import BUT from "./Button.vue"
 import CON from "./Content.vue"
+import OCC from "./OtherContentcon.vue"
 import CopyButton from "./CopyButton.vue";
 import { MainMenu, SubMenu, TableData, ContentData, IsLoading, TabelHeaderData } from "../utils/store"
 // 测试数据
 import { TabTestData, ContentTestData, MoenyTestData } from "../utils/testData"
+import { ref } from "vue";
+import { pushMessage } from "../utils/toastStore";
+import { useRequest } from "../utils/useRequest";
 
 const getCopyText = () => {
   if (SubMenu.value.type == 'content') {
@@ -17,6 +22,28 @@ const getCopyText = () => {
       return str + Object.keys(t).reduce((s, item) => s + t[item] + "\t", "") + "\n"
     }, "")
   }
+}
+
+
+const tableRef = ref()
+
+// 提交按钮
+const submitFunc = () => {
+  if (!tableRef.value) {
+    pushMessage("提交数据错误", "error")
+    return false
+  }
+
+  const newData = tableRef.value.sendNewTableData()
+  const { data, error, loading, run } = useRequest("/set_soft_article_data", { method: "POST" })
+  run({ data: newData })
+
+  if (error.value != null) {
+    pushMessage(error, "error")
+  } else {
+    pushMessage("提交数据成功", "success")
+  }
+  return false
 }
 
 </script>
@@ -32,18 +59,20 @@ const getCopyText = () => {
       <div class="content-sub">
         <div class="content-sub-title">
           <h2>⚠️⚠️⚠️获取到的数据仅作为辅助手段，请认真核查每条数据</h2>
-          <div class="content-sub-copy-but">
-            <CopyButton :getCopyText />
+          <div class="content-sub-but">
+            <CopyButton v-if="!['moeny', 'other', 'Summary'].includes(SubMenu.value)" :getCopyText />
+            <BUT v-if="SubMenu.value == 'moeny'" text="提交修改" :submitEvnt="submitFunc"></BUT>
           </div>
         </div>
       </div>
     </div>
 
     <div class="content-main">
-      <TBC v-if="SubMenu.type == 'table'" :data="MoenyTestData" :isLoadingData="IsLoading"
+      <TBC v-if="SubMenu.type == 'table'" ref="tableRef" :data="TableData" :isLoadingData="IsLoading"
         :tableHeader="TabelHeaderData">
       </TBC>
       <CON v-if="SubMenu.type == 'content'" :data="ContentData" :isLoadingData="IsLoading"></CON>
+      <OCC v-if="SubMenu.type == 'other'"></OCC>
     </div>
   </div>
 
@@ -79,8 +108,15 @@ const getCopyText = () => {
   align-items: center;
 }
 
-.content-sub-copy-but {
+.content-sub-but {
   padding: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content-sub-but> :not(:first-child) {
+  margin-left: 10px;
 }
 
 .content-main {

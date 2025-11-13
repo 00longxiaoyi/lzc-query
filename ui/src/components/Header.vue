@@ -36,7 +36,7 @@ const MenuItemsData = [
     },
     "sub": [
       {
-        "label": "代审核",
+        "label": "待审核",
         "value": "noReview",
         "type": "table"
       }, {
@@ -61,9 +61,9 @@ const MenuItemsData = [
         "type": "content"
       },
       {
-        "label": "下载图片",
-        "value": "DownloadPic",
-        "type": "download",
+        "label": "其他操作",
+        "value": "other",
+        "type": "other",
       }
     ]
   }

@@ -13,7 +13,6 @@ const props = defineProps({
   <div class="content_con">
     <div class="content_wrapper">
       <pre>{{ data }}</pre>
-      <pre>{{ data }}</pre>
       <!-- 使用 LoadingOverlay -->
       <LoadingOverlay :show=isLoadingData />
     </div>

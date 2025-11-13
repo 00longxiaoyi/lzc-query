@@ -1,17 +1,17 @@
 <template>
   <div class="table-main">
     <div class="table-wrapper">
-      <table class="data-table" v-show="data.length > 0">
+      <table class="data-table" v-show="refData.length > 0">
         <thead>
           <tr>
             <th v-for="item in tableHeader" :key="item">{{ item }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(d, index) in data" :key="index">
+          <tr v-for="(d, index) in refData" :key="index">
             <td v-for="k_name in Object.keys(d)">
-              <div v-if="k_name != 'price'">{{ d[k_name] }}</div>
-              <input v-else :value="d[k_name]" type="number" />
+              <div v-if="k_name != 'money'">{{ d[k_name] }}</div>
+              <input v-else v-model.number="refData[index][k_name]" type="number" />
             </td>
           </tr>
         </tbody>
@@ -19,14 +19,14 @@
       <!-- 使用 LoadingOverlay -->
       <LoadingOverlay :show=isLoadingData />
     </div>
-    <div class="table-botton" v-show="data?.length">
+    <div class="table-botton" v-show="refData?.length">
       <span>共计：{{ data.length }} 条数据</span>
     </div>
   </div>
 </template>
 
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, ref, watch } from "vue";
 import LoadingOverlay from './LoadingOverlay.vue'
 
 const props = defineProps({
@@ -35,14 +35,16 @@ const props = defineProps({
   isLoadingData: Boolean
 })
 
-const setCopyContent = () => {
-  if (props.data && props.data.length > 0) {
-    return props.data.map(d => {
-      return `${d.title}\t${d.nickname}`
-    }).join("\n")
+const refData = ref([...props.data])
+watch(() => props.data, (newvalue) => {
+  if (newvalue) {
+    refData.value = [...newvalue]
   }
-  return ""
-}
+})
+
+defineExpose({
+  sendNewTableData: () => refData.value
+})
 
 </script>
 
