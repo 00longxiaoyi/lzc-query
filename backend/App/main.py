@@ -1,20 +1,24 @@
 from datetime import datetime, timedelta
 import os
-from os.path import dirname
+from typing import List
 from fastapi import Body, FastAPI, WebSocket
 from fastapi.responses import FileResponse
+from getAllPicsNum import GetAllPicNum
 from getArticleData import GetArticleData
 from getArticlePendingData import GetArticlePengdingData
 from getSoftwareData import GetContent
 from getSoftwarePendingData import GetSoftwarePendingData
+from getSortAndArticleData import GetSortAndArticleData
+from getSummaryData import GetSummaryData
+from setSortAndArticleData import SetMoneyData
+from struc.picData import get_pic_data
+from struc.software import CompletedDataStruc
 from struc.websocksType import WsSendJsonInfo
 from tokenOperation import GetTokenInfo, SetTokenInfo
 from utils.GetImages import GetALlPicZip, GetAllpic
 from utils.Token import getToken, initToken
 
 from fastapi.middleware.cors import CORSMiddleware
-
-from utils.data import get_pic_data
 
 # 初始化一次
 initToken()
@@ -36,12 +40,10 @@ app.add_middleware(
 
 @app.get("/get_soft_ware_data")
 async def getSoftWareDataRoute():
-    #curTime = "2025-09-28"
-    #tomorrow = "2025-09-29"    
     curTime = datetime.now().date()
     tomorrow = curTime + timedelta(days=1)
     return await GetContent(str(curTime), str(tomorrow))
-    #return GetContent("2025-09-05", "2025-09-06")
+    #return await GetContent("2025-09-05", "20215-09-06")
 
 @app.get("/get_soft_ware_pending_data")
 def getSoftWarePendingDataRoute():
@@ -52,11 +54,11 @@ def getArticlePendingDataRoute():
     return GetArticlePengdingData()
 
 @app.get("/get_article_data")
-def getArticleDataRoute():
+async def getArticleDataRoute():
     curTime = datetime.now().date()
     tomorrow = curTime + timedelta(days=1)
-    return GetArticleData(str(curTime), str(tomorrow))
-    #return GetArticleData("2025-09-05", "2025-09-06")
+    return await GetArticleData(str(curTime), str(tomorrow))
+    #return await GetArticleData("2025-09-05", "2025-09-06")
 
 @app.get("/get_token")
 def getTokenRoute():
@@ -77,7 +79,7 @@ async def wsGetAllPicsInfo(websocket: WebSocket):
     except Exception as e:
         await websocket.send_json(WsSendJsonInfo(
             type="error",
-            data="websocket连接失败"
+            data=str(e)
         ).__dict__)
 
 @app.get("/download/zipfile")
@@ -95,6 +97,32 @@ async def getZIPContentRoute():
         filename=dirname
     )
 
+@app.get("/get_soft_article_data")
+async def getSoftArticleDataRoute():
+    """ 路由: 应用和文章的表单数据 """
+    curTime = datetime.now().date()
+    tomorrow = curTime + timedelta(days=1)
+    return await GetSortAndArticleData(str(curTime), str(tomorrow))
+    #return await GetSortAndArticleData("2025-09-05", "2025-09-06")
+
+
+@app.post("/set_soft_article_data")
+async def setSoftArticleDataRoute(data: List[CompletedDataStruc] = Body(..., embed=True)):
+    """ 路由：设置应用和文章的数据 """
+    return await SetMoneyData(data) 
+
+
+@app.get("/get_soft_article_text_data")
+async def getSoftArticleTextDataRoute():
+    curTime = datetime.now().date()
+    tomorrow = curTime + timedelta(days=1)
+    return await GetSummaryData(str(curTime), str(tomorrow))
+    #return await GetSummaryData("2025-09-05", "2025-09-06")
+
+@app.get("/get_all_pics_num")
+async def getAllPicsNumRoute():
+    return await GetAllPicNum()
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
