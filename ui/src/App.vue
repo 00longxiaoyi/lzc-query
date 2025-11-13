@@ -8,7 +8,6 @@ import CCN from "./components/ContentContainer.vue"
 
 import TBC from "./components/TableContent.vue"
 import CON from "./components/Content.vue"
-import MS from "./components/MoenySum.vue"
 import GlobalToast from "./components/GlobalToast.vue"
 import Settings from "./components/Settings.vue"
 import { pushMessage } from "./utils/toastStore.js"
@@ -82,8 +81,8 @@ const setData = async (setDataVar, setDataVarDefault, getDataFun) => {
 
     <div class="main">
 
-      <!-- <Settings /> -->
-      <!-- <GlobalToast /> -->
+      <Settings />
+      <GlobalToast />
 
       <Header class="main-header" @update="selectComponent" :isLoadingData :isDownloadingPic></Header>
       <CCN class="main-content"></CCN>
@@ -91,7 +90,6 @@ const setData = async (setDataVar, setDataVarDefault, getDataFun) => {
 
     <div v-if="false">
       <div v-if="selectType == 'other'">
-        <MS v-if="selectComponent == 1"></MS>
       </div>
       <div v-else>
         <TBC v-if="selectedCom == 1" :data="tableData" :isLoadingData></TBC>
