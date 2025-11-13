@@ -3,12 +3,13 @@
 import { ref } from "vue"
 import { pushMessage } from "./toastStore.js"
 import { useRequest } from "./useRequest.js"
+import { contentWebSocket } from "./webSocketContent.js"
 
 
 // 固定数据
 const softWareTableHeader = ["应用名称", "贡献者"]
 const articleTableHeader = ["文章名称", "作者"]
-const moneyTableHeader = ["名称", "类型", "作者", "金额"]
+const moneyTableHeader = ["ID", "用户ID", "名称", "作者", "类型", "金额"]
 
 // end
 
@@ -17,7 +18,7 @@ const TableData = ref([])
 const ContentData = ref("")
 
 // 表单头
-const TabelHeaderData = ref(moneyTableHeader)
+const TabelHeaderData = ref([])
 
 // 当前菜单
 const MainMenu = ref(null)
@@ -52,6 +53,7 @@ const getData = async () => {
     }
   }
 
+  const isDownloadingPic = ref(false)
   // 已审核
   if (subMenuValue == 'review') {
     if (mainMenuValue == 'soft') {
@@ -62,11 +64,14 @@ const getData = async () => {
       setData(ContentData, "", useRequest("/get_article_data"))
     }
   }
-
-  //if (subMenuValue == '') {
-
-  //}
-
+  // console.log(subMenuValue, mainMenuValue)
+  if (subMenuValue == "Summary") {
+    setData(ContentData, "", useRequest("/get_soft_article_text_data"))
+  }
+  if (subMenuValue == 'moeny') {
+    setData(TableData, [], useRequest("/get_soft_article_data"))
+    TabelHeaderData.value = moneyTableHeader
+  }
 }
 const setData = async (setDataVar, setDataVarDefault, getDataFun) => {
   setDataVar.value = setDataVarDefault
