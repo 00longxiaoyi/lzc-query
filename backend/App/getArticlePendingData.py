@@ -8,8 +8,6 @@ from utils.Token import getToken
 
 GET_URL = "https://playground.api.lazycat.cloud/cms/review?page=0&size=100&sort=-updatedAt&keyword="
 
-
-
 def GetArticlePengdingData():
     """ 获取代审核文章数据 """
     token = getToken()
@@ -18,7 +16,7 @@ def GetArticlePengdingData():
         "Cookie": f"userToken={token}"
     }
     TODAY = datetime.now().date()
-    
+
     reponse = requests.get(GET_URL, headers=HEADERS)
     result = ResponseStruc()
 
@@ -32,11 +30,11 @@ def GetArticlePengdingData():
                 title = item["title"]
                 nickName = item["user"]["nickname"]
                 updatedAt = item["updatedAt"]
-                
+
                 if updatedAt == None or updatedAt == "":
                     continue
                 updated_time = updatedAt.split("T")[0]
-               
+
                 # 跳过今天提交的
                 if updated_time == TODAY:
                     continue

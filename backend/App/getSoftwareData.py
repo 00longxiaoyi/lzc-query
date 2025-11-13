@@ -1,12 +1,12 @@
 """ 获取已审核应用数据 """
-from typing import List
+from typing import Any, List
 import requests
+from struc.picData import set_pic_data
 from struc.responseStruc import ResponseStruc
-from struc.software import TempPicInfoStruc
-from utils.FormatText import FormatText
+from struc.softDataFunc import set_software_data
+from struc.software import SoftwareDataStruc, TempPicInfoStruc
+from utils.FormatText import FormatTextOfSingleType
 from utils.Token import getToken 
-
-from utils.data import set_pic_data 
 
 
 APP_URL = "https://appstore.api.lazycat.cloud/api/v3/admin/app/list"
@@ -33,21 +33,24 @@ async def GetContent(start_time: str, end_time: str):
         "version_updated_at_end": END_TIME
     }
 
-    reuslt = {}
     pics: List[TempPicInfoStruc] = []
+    software_list: List[SoftwareDataStruc] = []
     reponse = ResponseStruc()
     res = requests.get(APP_URL, headers=HEADERS, params=QUERY_CONTENT)
-    print(res.url)
+    # print(res.url)
     if (res.status_code == 200):
         res_list = res.json()['items']
         # create_user -> id
         # info_data -> zh -> name
         # info_data -> zh -> screenshot_pc_paths[0]
         for item in res_list:
+
             user_id = item["create_user"]["id"]
+            user_nick_name = item["create_user"]["nickname"]
             # 简介
             brief = ""
             software_name = ""
+
             pic: TempPicInfoStruc = TempPicInfoStruc() 
 
             # 详细信息
@@ -65,20 +68,37 @@ async def GetContent(start_time: str, end_time: str):
                     pic.name = software_name
                 brief = soft_info['brief']
 
-            if (user_id in reuslt.keys()):
-                reuslt[user_id].append([software_name, brief])
-            else:
-                reuslt[user_id] = [[software_name, brief, len(pics) + 1]]
+            software_list.append(SoftwareDataStruc(
+                id=f"soft_{len(software_list)+1}",
+                user_id=user_id,
+                nick_name=user_nick_name,
+                brief=brief,
+                name=software_name
+            ))
+
             if (pic.name and pic.url):
                 pics.append(pic)
-        data = FormatText("software.txt", start_time, reuslt, "software")
+
+        #reuslt = mergeResult(software_list)
+        data = await FormatTextOfSingleType(software_list)
         # 保存临时图片数据 
         await set_pic_data(pics)
-        #SaveFormatTempPicsInfo(pics)
+        # 保存应用数据（统计时使用）
+        await set_software_data(software_list)
 
         reponse.code = 200
         reponse.data = data
-        print(reponse)
         return reponse
     else:
         print(f"数据获取失败")
+
+
+#def mergeResult(data: List[SoftwareDataStruc]) -> dict[Any, Any]:
+#    """ 返回格式化需要的数据格式 """
+#    result = {}
+#    for i in data:
+#        if (i.user_id in result.keys()):
+#            result[i.user_id].append([i.name, i.brief])
+#        else:
+#            result[i.user_id] = [[i.name, i.brief]]
+#    return result

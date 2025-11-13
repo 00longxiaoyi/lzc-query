@@ -1,13 +1,13 @@
+from typing import List
 import requests
 
+from struc.articleData import set_article_data
 from struc.responseStruc import ResponseStruc
-from utils.FormatText import FormatText
+from struc.software import ArticleDataStruc
+from utils.FormatText import FormatTextOfSingleType
 from utils.Token import getToken
 
-
-
-
-def GetArticleData(startDay, endDay):
+async def GetArticleData(startDay, endDay):
     """ 获取已审核的文章数据 """
     token = getToken()
     HEADERS = {
@@ -18,25 +18,33 @@ def GetArticleData(startDay, endDay):
     response = requests.get(GET_URL, headers=HEADERS)
     result = ResponseStruc()
     if (response.status_code == 200):
-        
+ 
         response_json = response.json()
         items = response_json["items"]
-        res = {}
+        resList: List[ArticleDataStruc] = []
+
         if (items and len(items) > 0):
             for item in items:
                 userId = item["user"]["id"] 
                 title =   item["title"]
-            
-                if (userId in res.keys()):
-                    res[userId].append([title])
-                else:
-                    res[userId] = [[title]]
-            
-        data = FormatText("article.txt", startDay, res, "article")
+                nickname = item["user"]["nickname"]
+
+                resList.append(ArticleDataStruc(
+                    id=f"article_{len(resList)+1}",
+                    user_id=userId,
+                    nick_name=nickname,
+                    name=title
+                ))
+
+        data = await FormatTextOfSingleType(resList)
+        #await saveArticleData(resList)
+        await set_article_data(resList)
+
         result.code = 200
         result.data = data
     elif (response.status_code == 401):
         result.code = 401
+        result.error = "登录状态已失效"
     else:
         result.code = 500
     return result
